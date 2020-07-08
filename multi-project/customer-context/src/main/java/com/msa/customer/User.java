@@ -1,41 +1,64 @@
 package com.msa.customer;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
 
-@Entity // This tells Hibernate to make a table out of this class
+import javax.persistence.*;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+
+@Table(name = "users")
+@Entity
+@Getter
+@Setter
 public class User {
-	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	private Integer id;
 
-	private String name;
+    private static final long serialVersionUID = 4512633005852272922L;
 
-	private String email;
+    @OriginalStates // 差分UPDATEのために定義する
+    @JsonIgnore // APIのレスポンスに含めない
+            User originalStates;
 
-	public Integer getId() {
-		return id;
-	}
+    @Id
+    @Column(name = "user_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    // ハッシュ化されたパスワード
+    @JsonIgnore
+    String password;
 
-	public String getName() {
-		return name;
-	}
+    // 名前
+    String firstName;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    // 苗字
+    String lastName;
 
-	public String getEmail() {
-		return email;
-	}
+    // メールアドレス
+    @Email
+    String email;
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    // 電話番号
+    @Digits(fraction = 0, integer = 10)
+    String tel;
+
+    // 郵便番号
+    @NotEmpty
+    String zip;
+
+    // 住所
+    @NotEmpty
+    String address;
+
+    // 添付ファイルID
+    @JsonIgnore
+    Long uploadFileId;
+
+    // 添付ファイル
+    @Transient // Domaで永続化しない
+    @JsonIgnore
+    UploadFile uploadFile;
 }
+

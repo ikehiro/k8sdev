@@ -6,6 +6,28 @@
  * User Manual available at https://docs.gradle.org/6.5.1/userguide/tutorial_java_projects.html
  */
 
+ext {
+    springBootVersion = "2.0.6.RELEASE"
+    spockVersion = "1.2-groovy-2.5"
+    groovyVersion = "2.5.3"
+    lombokVersion = "1.18.2"
+    dockerComposePluginVersion = "0.6.6"
+}
+
+bootJar {
+    enabled = true
+}
+
+jar {
+    enabled = true
+}
+
+// for Doma 2
+// JavaクラスとSQLファイルの出力先ディレクトリを同じにする
+processResources.destinationDir = compileJava.destinationDir
+// コンパイルより前にSQLファイルを出力先ディレクトリにコピーするために依存関係を逆転する
+compileJava.dependsOn processResources
+/*
 plugins {
     // Apply the java plugin to add support for Java
     id 'java'
@@ -16,6 +38,7 @@ plugins {
     id 'org.springframework.boot' version '2.2.2.RELEASE'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
 }
+*/
 
 repositories {
     // Use jcenter for resolving dependencies.
@@ -37,8 +60,15 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
-}
 
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+
+    testCompile "org.assertj:assertj-core"
+    testCompile "org.spockframework:spock-core:${spockVersion}"
+    testCompile "org.mockito:mockito-core"
+}
 
 
 test {
