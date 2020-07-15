@@ -26,18 +26,25 @@ buildscript {
 }
 
 apply plugin: "java"
-apply plugin: "groovy"
+//apply plugin: "groovy"
 apply plugin: "idea"
-apply plugin: "eclipse"
+//apply plugin: "eclipse"
 apply plugin: "org.springframework.boot"
 apply plugin: "io.spring.dependency-management"
-apply plugin: "application"
+//apply plugin: "application"
+
+idea.module.inheritOutputDirs = true
+// for Doma 2
+// JavaクラスとSQLファイルの出力先ディレクトリを同じにする
+processResources.destinationDir = compileJava.destinationDir
+// コンパイルより前にSQLファイルを出力先ディレクトリにコピーするために依存関係を逆転する
+compileJava.dependsOn processResources
 
 sourceCompatibility = 11
 targetCompatibility = 11
-[compileJava, compileTestJava, compileGroovy, compileTestGroovy]*.options*.encoding = "UTF-8"
-[compileJava, compileTestJava, compileGroovy, compileTestGroovy]*.options*.compilerArgs = ["-Xlint:all"]
-
+[compileJava, compileTestJava]*.options*.encoding = "UTF-8"
+//[compileJava, compileTestJava]*.options*.compilerArgs = ["-Xlint:all"]
+/*
 sourceSets {
     test.resources {
         // テスト時にsrc/main/resourcesにある設定ファイルを使用する
@@ -45,7 +52,7 @@ sourceSets {
         srcDirs "src/test/resources"
     }
 }
-
+*/
 repositories {
     mavenCentral()
     jcenter()
@@ -66,24 +73,60 @@ idea {
         downloadJavadoc = true
         downloadSources = true
 
-        inheritOutputDirs = false
+        inheritOutputDirs = true
         outputDir = compileJava.destinationDir
         testOutputDir = compileTestJava.destinationDir
     }
 }
 
+compileJava.doFirst {
+    compileJava.destinationDir.mkdirs()
+
+    copy {
+        from processResources.source
+        into compileJava.destinationDir
+    }
+}
+
+
+task hogehoge {
+    doLast {
+        println 'Hello World!'
+        println processResources.source.asPath
+        println compileJava.destinationDir.mkdirs()
+
+        copy {
+            from processResources.source
+            into compileJava.destinationDir
+        }
+
+    }
+}
+
+task resourceCopy(dependsOn: hogehoge, type: Copy) {
+    println '++++++ resourceCopy +++++'
+
+    from file(processResources.source.asPath)
+    into(compileJava.destinationDir)
+}
+
+
+// compileJava.dependsOn processResources
+
+
+/*
 eclipse {
     classpath {
         containers.remove("org.eclipse.jdt.launching.JRE_CONTAINER")
         containers "org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11"
     }
 }
-/*
-bootRun {
-    sourceResources sourceSets.main
-    jvmArgs "-XX:TieredStopAtLevel=1", "-Xverify:none"
-}
-*/
+
+        bootRun {
+            sourceResources sourceSets.main
+            jvmArgs "-XX:TieredStopAtLevel=1", "-Xverify:none"
+        }
+        */
 ext["groovy.version"] = groovyVersion
 
 dependencies {
@@ -94,6 +137,20 @@ dependencies {
     testCompile "org.assertj:assertj-core"
     testCompile "org.spockframework:spock-core:${spockVersion}"
     testCompile "org.mockito:mockito-core"
+
+    // implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    runtimeOnly 'mysql:mysql-connector-java'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+
+// doma exclude springframework
+    annotationProcessor "org.seasar.doma.boot:doma-spring-boot-starter:1.1.1"
+    compile("org.seasar.doma.boot:doma-spring-boot-starter:1.1.1") {
+        exclude group: "org.springframework.boot"
+    }
 }
 
 bootJar {
@@ -104,11 +161,7 @@ jar {
     enabled = true
 }
 
-// for Doma 2
-// JavaクラスとSQLファイルの出力先ディレクトリを同じにする
-processResources.destinationDir = compileJava.destinationDir
-// コンパイルより前にSQLファイルを出力先ディレクトリにコピーするために依存関係を逆転する
-compileJava.dependsOn processResources
+
 /*
 plugins {
     // Apply the java plugin to add support for Java
@@ -120,7 +173,7 @@ plugins {
     id 'org.springframework.boot' version '2.2.2.RELEASE'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
 }
-*/
+
 
 repositories {
     // Use jcenter for resolving dependencies.
@@ -152,23 +205,23 @@ dependencies {
     testCompile "org.mockito:mockito-core"
 
 //-------------------------
-    /*
+
     // springframework
     compile "org.springframework.boot:spring-boot-starter-aop"
     compile "org.springframework.boot:spring-boot-starter-validation"
     compile "org.springframework.boot:spring-boot-starter-mail"
     compile "org.springframework.boot:spring-boot-starter-thymeleaf"
-    */
+
     compile "org.springframework.boot:spring-boot-starter-jdbc"
-    /*
+
     compile "org.springframework.boot:spring-boot-starter-json"
-*/
+
     // doma exclude springframework
     annotationProcessor "org.seasar.doma.boot:doma-spring-boot-starter:1.1.1"
     compile("org.seasar.doma.boot:doma-spring-boot-starter:1.1.1") {
         exclude group: "org.springframework.boot"
     }
-/*
+
     // thymeleaf
     compile "org.codehaus.groovy:groovy:${groovyVersion}"
     compile("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.3.0") {
@@ -189,9 +242,9 @@ dependencies {
     testCompile "org.springframework.boot:spring-boot-starter-test"
     testCompile "org.spockframework:spock-spring:${spockVersion}"
 
-*/
-}
 
+}
+*/
 
 test {
     useJUnitPlatform()

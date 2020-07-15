@@ -1,10 +1,22 @@
 package com.msa.customer;
 
-import org.springframework.data.repository.CrudRepository;
-
 // This will be AUTO IMPLEMENTED by Spring into a Bean called userRepository
 // CRUD refers Create, Read, Update, Delete
 
-public interface UserRepository extends CrudRepository<com.msa.customer.User, Integer> {
+import org.seasar.doma.Dao;
+import org.seasar.doma.Insert;
+import org.seasar.doma.Select;
+import org.seasar.doma.boot.ConfigAutowireable;
 
+import java.util.List;
+
+@ConfigAutowireable
+@Dao
+public interface UserRepository {
+
+    @Insert
+    int save(User n);
+
+    @Select()
+    List<User> findAll();
 }
