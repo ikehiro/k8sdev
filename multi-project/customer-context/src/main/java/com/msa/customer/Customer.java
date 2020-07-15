@@ -5,37 +5,35 @@ import lombok.Getter;
 import lombok.Setter;
 import org.seasar.doma.*;
 
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-
-@Table(name = "users")
+@Table(name = "customer")
 @Entity
 @Getter
 @Setter
-public class User {
+public class Customer {
 
     private static final long serialVersionUID = 4512633005852272922L;
 
     @OriginalStates // 差分UPDATEのために定義する
     @JsonIgnore // APIのレスポンスに含めない
-            User originalStates;
+            Customer originalStates;
 
     @Id
-    @Column(name = "user_id")
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     // ハッシュ化されたパスワード
-    @JsonIgnore
-    String password;
+    //@JsonIgnore
+    @Column(name = "corporate_number")
+    String corporateNumber;
 
     // 名前
-    String firstName;
+    String name;
 
-    // 苗字
-    String lastName;
+    String jsonVal;
 
+    String vc;
+    /*
     // メールアドレス
     @Email
     String email;
@@ -55,7 +53,7 @@ public class User {
     // 添付ファイルID
     @JsonIgnore
     Long uploadFileId;
-
+*/
 
 }
 

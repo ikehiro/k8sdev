@@ -12,11 +12,11 @@ import java.util.List;
 
 @ConfigAutowireable
 @Dao
-public interface UserRepository {
+public interface CustomerRepository {
 
     @Insert
-    int save(User n);
+    int save(Customer n);
 
     @Select()
-    List<User> findAll();
+    List<Customer> findAll();
 }
