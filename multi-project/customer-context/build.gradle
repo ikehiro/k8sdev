@@ -6,12 +6,94 @@
  * User Manual available at https://docs.gradle.org/6.5.1/userguide/tutorial_java_projects.html
  */
 
-ext {
-    springBootVersion = "2.0.6.RELEASE"
-    spockVersion = "1.2-groovy-2.5"
-    groovyVersion = "2.5.3"
-    lombokVersion = "1.18.2"
-    dockerComposePluginVersion = "0.6.6"
+buildscript {
+    ext {
+        springBootVersion = "2.0.6.RELEASE"
+        spockVersion = "1.2-groovy-2.5"
+        groovyVersion = "2.5.3"
+        lombokVersion = "1.18.2"
+        dockerComposePluginVersion = "0.6.6"
+    }
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath "com.github.tntim96:fakesmtp:2.0" // ローカルでダミーのSMTPサーバーを立てる
+        classpath "com.avast.gradle:gradle-docker-compose-plugin:${dockerComposePluginVersion}"
+    }
+}
+
+apply plugin: "java"
+apply plugin: "groovy"
+apply plugin: "idea"
+apply plugin: "eclipse"
+apply plugin: "org.springframework.boot"
+apply plugin: "io.spring.dependency-management"
+apply plugin: "application"
+
+sourceCompatibility = 11
+targetCompatibility = 11
+[compileJava, compileTestJava, compileGroovy, compileTestGroovy]*.options*.encoding = "UTF-8"
+[compileJava, compileTestJava, compileGroovy, compileTestGroovy]*.options*.compilerArgs = ["-Xlint:all"]
+
+sourceSets {
+    test.resources {
+        // テスト時にsrc/main/resourcesにある設定ファイルを使用する
+        srcDirs "src/main/resources"
+        srcDirs "src/test/resources"
+    }
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+
+    // jasperreports
+    maven { url "http://jasperreports.sourceforge.net/maven2/" }
+    maven { url "http://jaspersoft.artifactoryonline.com/jaspersoft/third-party-ce-artifacts/" }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+    }
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+
+        inheritOutputDirs = false
+        outputDir = compileJava.destinationDir
+        testOutputDir = compileTestJava.destinationDir
+    }
+}
+
+eclipse {
+    classpath {
+        containers.remove("org.eclipse.jdt.launching.JRE_CONTAINER")
+        containers "org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11"
+    }
+}
+/*
+bootRun {
+    sourceResources sourceSets.main
+    jvmArgs "-XX:TieredStopAtLevel=1", "-Xverify:none"
+}
+*/
+ext["groovy.version"] = groovyVersion
+
+dependencies {
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+
+    testCompile "org.assertj:assertj-core"
+    testCompile "org.spockframework:spock-core:${spockVersion}"
+    testCompile "org.mockito:mockito-core"
 }
 
 bootJar {
@@ -68,6 +150,46 @@ dependencies {
     testCompile "org.assertj:assertj-core"
     testCompile "org.spockframework:spock-core:${spockVersion}"
     testCompile "org.mockito:mockito-core"
+
+//-------------------------
+    /*
+    // springframework
+    compile "org.springframework.boot:spring-boot-starter-aop"
+    compile "org.springframework.boot:spring-boot-starter-validation"
+    compile "org.springframework.boot:spring-boot-starter-mail"
+    compile "org.springframework.boot:spring-boot-starter-thymeleaf"
+    */
+    compile "org.springframework.boot:spring-boot-starter-jdbc"
+    /*
+    compile "org.springframework.boot:spring-boot-starter-json"
+*/
+    // doma exclude springframework
+    annotationProcessor "org.seasar.doma.boot:doma-spring-boot-starter:1.1.1"
+    compile("org.seasar.doma.boot:doma-spring-boot-starter:1.1.1") {
+        exclude group: "org.springframework.boot"
+    }
+/*
+    // thymeleaf
+    compile "org.codehaus.groovy:groovy:${groovyVersion}"
+    compile("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.3.0") {
+        exclude group: "org.codehaus.groovy", module: "groovy"
+        exclude group: "org.thymeleaf", module: "thymeleaf"
+    }
+
+    // jackson
+    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-csv"
+
+    // modelmapper
+    compile "org.modelmapper:modelmapper:0.7.5"
+
+    // mysql database
+    compile "mysql:mysql-connector-java"
+//    compile "org.flywaydb:flyway-core"
+
+    testCompile "org.springframework.boot:spring-boot-starter-test"
+    testCompile "org.spockframework:spock-spring:${spockVersion}"
+
+*/
 }
 
 

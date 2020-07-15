@@ -89,13 +89,15 @@ subprojects {
     }
 }
 
+/*
 task startFakeSmtpServer(type: JavaExec) {
     classpath = buildscript.configurations.classpath
     args = ["--start-server", "-m"] // -m (memory-mode)
     main = "com.nilhcem.fakesmtp.FakeSMTP"
 }
-
+*/
 apply plugin: "docker-compose"
+
 
 /*
 dockerCompose {

@@ -3,6 +3,7 @@ package com.msa.customer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import org.seasar.doma.OriginalStates;
 
 import javax.persistence.*;
 import javax.validation.constraints.Digits;
@@ -56,9 +57,6 @@ public class User {
     @JsonIgnore
     Long uploadFileId;
 
-    // 添付ファイル
-    @Transient // Domaで永続化しない
-    @JsonIgnore
-    UploadFile uploadFile;
+
 }
 
