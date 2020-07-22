@@ -1,4 +1,4 @@
-package com.msa.customer;
+package com.msa.customer.infrastructure.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -9,13 +9,13 @@ import org.seasar.doma.*;
 @Entity
 @Getter
 @Setter
-public class Customer {
+public class CustomerEntity {
 
     private static final long serialVersionUID = 4512633005852272922L;
 
     @OriginalStates // 差分UPDATEのために定義する
     @JsonIgnore // APIのレスポンスに含めない
-            Customer originalStates;
+            CustomerEntity originalStates;
 
     @Id
     @Column(name = "id")
