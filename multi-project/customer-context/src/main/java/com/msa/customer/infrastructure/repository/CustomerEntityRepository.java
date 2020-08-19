@@ -15,7 +15,7 @@ import java.util.List;
 @Dao
 public interface CustomerEntityRepository {
 
-    @Insert
+    @Insert(exclude = {"vc"})
     int save(CustomerEntity n);
 
     @Select()

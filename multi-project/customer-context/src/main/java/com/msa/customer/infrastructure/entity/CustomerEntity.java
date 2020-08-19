@@ -30,6 +30,7 @@ public class CustomerEntity {
     // 名前
     String name;
 
+    @Column(name = "json_val")
     String jsonVal;
 
     String vc;
